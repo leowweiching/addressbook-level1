@@ -74,6 +74,7 @@ public class AddressBook {
     private static final String MESSAGE_DELETE_PERSON_SUCCESS = "Deleted Person: %1$s";
     private static final String MESSAGE_DISPLAY_PERSON_DATA = "%1$s  Phone Number: %2$s  Email: %3$s";
     private static final String MESSAGE_DISPLAY_LIST_ELEMENT_INDEX = "%1$d. ";
+    private static final String MESSAGE_ADDRESSBOOK_SORTED = "Address book has been sorted by alphabetical order!";
     private static final String MESSAGE_GOODBYE = "Exiting Address Book... Good bye!";
     private static final String MESSAGE_INVALID_COMMAND_FORMAT = "Invalid command format: %1$s " + LS + "%2$s";
     private static final String MESSAGE_INVALID_FILE = "The given file name [%1$s] is not a valid file name!";
@@ -115,6 +116,10 @@ public class AddressBook {
     private static final String COMMAND_LIST_WORD = "list";
     private static final String COMMAND_LIST_DESC = "Displays all persons as a list with index numbers.";
     private static final String COMMAND_LIST_EXAMPLE = COMMAND_LIST_WORD;
+
+    private static final String COMMAND_SORT_WORD = "sort";
+    private static final String COMMAND_SORT_DESC = "Sorts address book by alphabetical order.";
+    private static final String COMMAND_SORT_EXAMPLE = COMMAND_SORT_WORD;
 
     private static final String COMMAND_DELETE_WORD = "delete";
     private static final String COMMAND_DELETE_DESC = "Deletes a person identified by the index number used in "
@@ -371,6 +376,8 @@ public class AddressBook {
             return executeFindPersons(commandArgs);
         case COMMAND_LIST_WORD:
             return executeListAllPersonsInAddressBook();
+        case COMMAND_SORT_WORD:
+            return executeSortAllPersonsInAddressBook();
         case COMMAND_DELETE_WORD:
             return executeDeletePerson(commandArgs);
         case COMMAND_CLEAR_WORD:
@@ -565,7 +572,7 @@ public class AddressBook {
     }
 
     /**
-     * Displays all persons in the address book to the user; in added order.
+     * Displays all persons in the address book to the user; in added order, unless sort command was executed.
      *
      * @return feedback display message for the operation result
      */
@@ -573,6 +580,26 @@ public class AddressBook {
         ArrayList<HashMap<PersonProperty, String>> toBeDisplayed = getAllPersonsInAddressBook();
         showToUser(toBeDisplayed);
         return getMessageForPersonsDisplayedSummary(toBeDisplayed);
+    }
+
+    /**
+     * Sorts all persons in the address by alphabetical order.
+     *
+     * @return feedback display message for the operation result
+     */
+    private static String executeSortAllPersonsInAddressBook() {
+        sortAddressBook();
+        return getMessageForSuccessfulSort();
+    }
+
+    /**
+     * Constructs a feedback message for a successful sort command execution.
+     *
+     * @see #executeSortAllPersonsInAddressBook()
+     * @return successful sorted feedback message
+     */
+    private static String getMessageForSuccessfulSort() {
+        return MESSAGE_ADDRESSBOOK_SORTED;
     }
 
     /**
@@ -795,6 +822,14 @@ public class AddressBook {
             savePersonsToFile(getAllPersonsInAddressBook(), storageFilePath);
         }
         return changed;
+    }
+
+    /**
+     * Sorts persons in the address book by alphabetical order (case-insensitive). Saves changes to storage file.
+     */
+    private static void sortAddressBook() {
+        ALL_PERSONS.sort((p1, p2) -> (p1.get(PersonProperty.NAME).toLowerCase()).compareTo(p2.get(PersonProperty.NAME).toLowerCase()));
+        savePersonsToFile(getAllPersonsInAddressBook(), storageFilePath);
     }
 
     /**
